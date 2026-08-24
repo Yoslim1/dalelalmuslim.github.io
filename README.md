@@ -1,45 +1,47 @@
-# دليل المسلم
+# دليل المسلم — Expo Offline
 
-تطبيق ويب تقدمي (PWA) للمحتوى الإسلامي اليومي، مبني على هيكل modular واضح وقابل للانتقال التدريجي إلى Cloudflare + D1 بدون rewrite كامل.
+تطبيق عربي مبني بـ **React Native وExpo Router** ويعمل من مصدر واحد على الويب وAndroid وiOS. الإصدار الحالي **Offline-first بالكامل**: القرآن والأذكار والأدعية وأسماء الله والقصص مضمّنة داخل الحزمة، بينما يُحفظ تقدم المستخدم ومهامه ومفضلاته وإعداداته محليًا في `AsyncStorage`.
 
-## الاتجاه المعتمد
-- **GitHub** للكود والمخططات والوثائق
-- **Cloudflare Pages** لاستضافة الواجهة
-- **Pages Functions / Workers** للـ API لاحقًا
-- **D1** للمحتوى الحي لاحقًا
-- **Local Cache** عند المستخدم للقراءة السريعة
-- **Version مستقل لكل قسم** لتحديث القسم الذي تغيّر فقط
-- **Typed JavaScript** الآن كمرحلة تمهيدية قبل TypeScript الكامل
+## تشغيل التطوير
 
-## المرحلة الحالية
-أول patch في المرحلة الأولى يركز على:
-- تثبيت baseline الحالي بدل rewrite موازي
-- إضافة content contracts/client محلي
-- إضافة section cache/version store
-- عزل auth خلف facade عامة
-- بدء branding وstorage migration إلى **دليل المسلم**
+ثبّت الاعتماديات مرة واحدة، ثم شغّل المنصة المطلوبة:
 
-## متى نعمل GitHub وCloudflare؟
-- **GitHub**: مباشرة بعد اجتياز `npm run ready:local`.
-- **Cloudflare Pages**: بعد أول push ناجح إلى GitHub، وليس قبل ذلك.
-- الإعداد العملي الكامل موجود في: `docs/setup/repo-and-deploy-sequence.md`
+```bash
+pnpm install
+pnpm dev       # تشغيل نسخة الويب عبر Expo
+pnpm android   # فتح التطبيق على Android أو Expo Go
+pnpm ios       # فتح التطبيق على iOS أو المحاكي
+```
 
-## وضع النشر الحالي
-- **Source of truth**: GitHub
-- **النسخة الحية الحالية**: Cloudflare Direct Upload project `dalil-almuslim-web`
-- **أمر تجهيز artifact الرسمي**: `npm run release:manual-cloudflare`
-- **الوثائق المرتبطة**:
-  - `docs/deploy/manual-cloudflare-direct-upload.md`
-  - `docs/deploy/deploy-targets.md`
+يستخدم التطبيق `Expo Router` للتنقل، ويدعم الاتجاه العربي RTL. تظل الوظائف الأساسية صالحة عند إيقاف الشبكة؛ لا يطلب التطبيق API أو Firebase أو D1 أو قاعدة بيانات عن بعد.
 
-## طريقة التشغيل
-1. ثبّت الاعتمادات: `npm install`
-2. افحص shell المولّد: `npm run build:shell:check`
-3. افحص المعمارية: `npm run verify:architecture`
-4. افحص typed JS للطبقة التأسيسية: `npm run typecheck`
+## التحقق والبناء
 
-## المراجع الداخلية
-- `docs/architecture.md`
-- `docs/release-readiness.md`
-- `docs/maintenance-guide.md`
-- `docs/migration/stage-1-foundation.md`
+استخدم الأوامر الآتية قبل إنشاء أي توزيع:
+
+```bash
+pnpm check
+pnpm test
+pnpm build      # تصدير نسخة ويب ثابتة إلى dist/
+```
+
+يختبر ملف `tests/offline-content.test.ts` سلامة فهرس القرآن الكامل والمحتوى المضمّن واختيار المحتوى اليومي وهجرة حالة التخزين المحلية. لبناء APK أو IPA استخدم زر **Publish** من واجهة المشروع بعد حفظ نقطة استعادة؛ لا يُبنى APK يدويًا داخل بيئة التطوير.
+
+### APK عبر GitHub
+
+يوفّر الفرع `expo-offline-mobile` مسار GitHub Actions ينتج **Debug APK** قابلًا للتنزيل عند كل push أو تشغيل يدوي. لا يحتاج المسار أي سر أو قاعدة بيانات، ويشغّل فحوص TypeScript وlint والاختبارات وExpo Doctor قبل Gradle. راجع [تعليمات APK عبر GitHub](docs/github-apk.md) للتفاصيل وحدود نسخة Debug.
+
+## البنية المحلية
+
+| المسار | المسؤولية |
+|---|---|
+| `app/` | الشاشات والمسارات المشتركة للويب وAndroid وiOS |
+| `lib/content/raw/` | المحتوى المضمّن: 114 سورة والأذكار والأدعية والقصص وأسماء الله |
+| `lib/content/` | adapters ونماذج المحتوى وفهرس السور |
+| `lib/state/app-state.tsx` | حالة المستخدم وهجرة وحفظ AsyncStorage |
+| `lib/text-actions.ts` | النسخ والمشاركة النصية محليًا |
+| `assets/images/` | الأيقونة وشاشة البداية وfavicon |
+
+## حدود مقصودة
+
+لا توجد مزامنة بين الأجهزة أو حسابات أو تنبيهات server-side في هذا الإصدار، التزامًا بطلب العمل المحلي الكامل. حذف بيانات التطبيق أو إلغاء تثبيته يمسح التقدم المخزن على الجهاز. يمكن إضافة تصدير/استيراد ملف محلي مستقبلًا إذا احتجت نسخة احتياطية بلا سحابة.
