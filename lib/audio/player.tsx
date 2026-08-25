@@ -3,6 +3,7 @@ import { createContext, type PropsWithChildren, useCallback, useContext, useEffe
 import { Platform } from "react-native";
 
 import { useAppState } from "@/lib/state/app-state";
+import { hasPlaybackStarted } from "@/lib/audio/playback-guard";
 
 export type QuranAudioTrack = {
   uri: string;
@@ -42,6 +43,22 @@ const defaultPlayback: AudioPlaybackState = {
 
 const QuranAudioContext = createContext<QuranAudioApi | null>(null);
 
+const PLAYBACK_START_TIMEOUT_MS = 1800;
+const PLAYBACK_POLL_INTERVAL_MS = 150;
+
+function wait(milliseconds: number) {
+  return new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
+}
+
+async function waitForPlaybackStart(player: AudioPlayer) {
+  const deadline = Date.now() + PLAYBACK_START_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    if (hasPlaybackStarted(player.currentStatus)) return;
+    await wait(PLAYBACK_POLL_INTERVAL_MS);
+  }
+  throw new Error("playback_start_timeout");
+}
+
 export function QuranAudioProvider({ children }: PropsWithChildren) {
   const { state, updateAudioSettings } = useAppState();
   const playerRef = useRef<AudioPlayer | null>(null);
@@ -63,7 +80,7 @@ export function QuranAudioProvider({ children }: PropsWithChildren) {
   }, []);
 
   useEffect(() => {
-    void setAudioModeAsync({ playsInSilentMode: true }).catch(() => undefined);
+    void setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true, interruptionMode: "doNotMix" }).catch(() => undefined);
     const timer = setInterval(syncState, 400);
     return () => {
       clearInterval(timer);
@@ -74,10 +91,17 @@ export function QuranAudioProvider({ children }: PropsWithChildren) {
 
   const playTrack = useCallback(async (track: QuranAudioTrack, startMs = 0) => {
     try {
+      await setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true, interruptionMode: "doNotMix" });
       playerRef.current?.remove();
-      const player = createAudioPlayer({ uri: track.uri }, { updateInterval: 250 });
+      const player = createAudioPlayer(track.uri, { updateInterval: 250 });
+      player.muted = false;
+      player.volume = 1;
       player.playbackRate = playback.speed;
       player.shouldCorrectPitch = true;
+      playerRef.current = player;
+      if (startMs > 0) await player.seekTo(startMs / 1000);
+      player.play();
+      await waitForPlaybackStart(player);
       if (Platform.OS !== "web") {
         player.setActiveForLockScreen(true, {
           title: `سورة ${track.chapterName}`,
@@ -85,9 +109,6 @@ export function QuranAudioProvider({ children }: PropsWithChildren) {
           albumTitle: "دليل المسلم",
         });
       }
-      playerRef.current = player;
-      if (startMs > 0) await player.seekTo(startMs / 1000);
-      player.play();
       setPlayback((current) => ({
         ...current,
         track,
@@ -96,8 +117,11 @@ export function QuranAudioProvider({ children }: PropsWithChildren) {
         durationMs: track.durationMs ?? 0,
         error: null,
       }));
-    } catch {
+    } catch (error) {
+      playerRef.current?.remove();
+      playerRef.current = null;
       setPlayback((current) => ({ ...current, playing: false, error: "تعذر بدء التلاوة. تحقق من الملف أو أعد تنزيله." }));
+      throw error;
     }
   }, [playback.speed]);
 

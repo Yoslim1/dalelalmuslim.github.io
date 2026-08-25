@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Platform } from "react-native";
 
-import { deleteDownloadedAudio, getDownloadedAudioUri } from "@/lib/audio/downloads";
+import { deleteDownloadedAudio, getDownloadedAudioFile, getDownloadedAudioUri } from "@/lib/audio/downloads";
 import { mapAudioDownloadError } from "@/lib/audio/download-error";
 import { useQuranAudio } from "@/lib/audio/player";
+import { validateLocalAudioSource } from "@/lib/audio/playback-guard";
 import { getChapterActionState } from "@/lib/audio/reciter-download-state";
 import { downloadVerifiedChapter } from "@/lib/audio/reciter-downloads";
 import { useReciterLibrary } from "@/lib/audio/reciter-library";
@@ -34,7 +35,21 @@ export function useChapterAudioAction(chapter: number, chapterName: string) {
 
   const play = useCallback(async () => {
     if (!downloadedUri || !chapterAudio || !selectedReciter) return;
-    await playTrack({ uri: downloadedUri, chapter, chapterName, reciterName: selectedReciter.nameAr, durationMs: chapterAudio.durationMs });
+    const localFile = await getDownloadedAudioFile(selectedReciter.id, chapter);
+    const source = validateLocalAudioSource(localFile ?? { uri: downloadedUri, size: 0 });
+    if (!source.ok) {
+      setFailed(true);
+      setMessage(source.message);
+      return;
+    }
+    setMessage("جارٍ بدء التلاوة…");
+    try {
+      await playTrack({ uri: source.uri, chapter, chapterName, reciterName: selectedReciter.nameAr, durationMs: chapterAudio.durationMs });
+      setMessage(null);
+    } catch {
+      setFailed(true);
+      setMessage("تعذر بدء التلاوة. احذف التنزيل ثم أعد تنزيله.");
+    }
   }, [chapter, chapterAudio, chapterName, downloadedUri, playTrack, selectedReciter]);
 
   const download = useCallback(async () => {

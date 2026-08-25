@@ -10,6 +10,11 @@ type DownloadSpec = {
   sha256: string;
 };
 
+export type DownloadedAudioFile = {
+  uri: string;
+  size: number;
+};
+
 function filename(chapter: number) {
   return `${String(chapter).padStart(3, "0")}.mp3`;
 }
@@ -23,8 +28,13 @@ function audioDirectory(reciterId: string) {
 }
 
 export async function getDownloadedAudioUri(reciterId: string, chapter: number): Promise<string | null> {
+  const file = await getDownloadedAudioFile(reciterId, chapter);
+  return file?.uri ?? null;
+}
+
+export async function getDownloadedAudioFile(reciterId: string, chapter: number): Promise<DownloadedAudioFile | null> {
   const file = new File(audioDirectory(reciterId), filename(chapter));
-  return file.exists ? file.uri : null;
+  return file.exists ? { uri: file.uri, size: file.size } : null;
 }
 
 export async function downloadChapterAudio(spec: DownloadSpec, onProgress?: (progress: number) => void): Promise<string> {

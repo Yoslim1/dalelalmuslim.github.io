@@ -2,5 +2,6 @@
 export {
   deleteDownloadedAudio,
   downloadChapterAudio,
+  getDownloadedAudioFile,
   getDownloadedAudioUri,
 } from "./downloads.native";
