@@ -1,14 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { homeTools, primaryTabs } from "@/lib/navigation/product-navigation";
+import { drawerTools, homeTools, primaryTabs } from "@/lib/navigation/product-navigation";
 
 describe("تنقل المنتج", () => {
-  it("يحصر الشريط السفلي في الأقسام التعبدية الأربعة ولا يعرض المزيد", () => {
-    expect(primaryTabs.map((tab) => tab.route)).toEqual(["quran", "duas", "azkar", "index"]);
+  it("يعرض خمسة تبويبات واضحة ويضع المسبحة في المركز دون جعل المزيد تبويبًا", () => {
+    expect(primaryTabs.map((tab) => tab.route)).toEqual(["index", "quran", "masbaha", "azkar", "duas"]);
+    expect(primaryTabs.find((tab) => tab.central)?.route).toBe("masbaha");
     expect(primaryTabs.some((tab) => tab.route === ("more" as never))).toBe(false);
   });
 
-  it("يبقي الأدوات الثانوية قابلة للوصول من الرئيسية", () => {
-    expect(homeTools.map((tool) => tool.href)).toEqual(expect.arrayContaining(["/masbaha", "/tasks", "/names", "/stories", "/stats"]));
+  it("يبقي الأدوات الثانوية قابلة للوصول من الرئيسية والدرج مع وجود الإعدادات في الدرج", () => {
+    expect(homeTools.map((tool) => tool.href)).toEqual(expect.arrayContaining(["/tasks", "/names", "/stories", "/stats"]));
+    expect(drawerTools.map((tool) => tool.href)).toEqual(expect.arrayContaining(["/audio-library", "/settings", "/tasks", "/names", "/stories", "/stats"]));
   });
 });

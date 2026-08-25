@@ -46,6 +46,16 @@ const config: ExpoConfig = {
     "expo-router",
     "expo-asset",
     "expo-system-ui",
+    [
+      "expo-localization",
+      {
+        forcesRTL: true,
+        supportedLocales: {
+          ios: ["ar"],
+          android: ["ar"],
+        },
+      },
+    ],
     "expo-audio",
     ["expo-video", { supportsBackgroundPlayback: true, supportsPictureInPicture: false }],
     [

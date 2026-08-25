@@ -1,15 +1,21 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
+import { useMemo } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { AppScreen, IconButton, Metric, ScreenTitle, Surface } from "@/components/dalil-ui";
+import { useNavigationDrawer } from "@/components/navigation/app-navigation-drawer";
 import { getDailyAyah, getDailyMessage } from "@/lib/content/daily";
 import { homeTools } from "@/lib/navigation/product-navigation";
 import { useAppState } from "@/lib/state/app-state";
-import { motion, palette, shapes, spacing, typography } from "@/lib/ui/theme";
+import { motion, type Palette, shapes, spacing, typography } from "@/lib/ui/theme";
+import { useSakinahTheme } from "@/lib/ui/theme-provider";
 
 export default function HomeScreen() {
   const { state, hydrated } = useAppState();
+  const { palette } = useSakinahTheme();
+  const styles = useMemo(() => createStyles(palette), [palette]);
+  const { openDrawer } = useNavigationDrawer();
   const ayah = getDailyAyah();
   const completedTasks = state.tasks.filter((task) => task.completed).length;
   const taskProgress = Math.round((completedTasks / Math.max(state.tasks.length, 1)) * 100);
@@ -25,7 +31,7 @@ export default function HomeScreen() {
         ListHeaderComponent={(
           <View style={styles.header}>
             <View style={styles.topLine}>
-              <IconButton icon="settings" label="الإعدادات" onPress={() => router.push("/settings")} />
+              <IconButton icon="menu" label="المزيد والإعدادات" onPress={openDrawer} />
               <View style={styles.greetingBlock}>
                 <Text style={styles.greeting}>السلام عليك</Text>
                 <Text style={styles.subGreeting}>{hydrated ? "رفيقك الهادئ لورد اليوم" : "جارٍ استعادة تقدمك المحلي…"}</Text>
@@ -84,7 +90,8 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function createStyles(palette: Palette) {
+  return StyleSheet.create({
   content: { paddingBottom: spacing.xxl, paddingHorizontal: spacing.lg },
   header: { gap: spacing.md, paddingTop: spacing.sm },
   topLine: { alignItems: "center", flexDirection: "row", justifyContent: "space-between" },
@@ -115,4 +122,5 @@ const styles = StyleSheet.create({
   actionSubtitle: { color: palette.muted, fontSize: 11, lineHeight: 16, marginTop: 2, textAlign: "right" },
   offlineNote: { color: palette.muted, fontSize: 12, marginTop: spacing.sm, textAlign: "center" },
   pressed: { opacity: motion.pressOpacity, transform: [{ scale: motion.pressScale }] },
-});
+  });
+}

@@ -16,19 +16,21 @@ export default function TabLayout() {
       const tab = primaryTabs.find((item) => item.route === route.name);
       return {
         headerShown: false,
-        tabBarActiveTintColor: palette.primary,
         tabBarInactiveTintColor: palette.muted,
-        tabBarLabelStyle: { fontSize: 12, fontWeight: "800", marginTop: 2 },
-        tabBarItemStyle: { borderRadius: shapes.medium, marginHorizontal: 2, minHeight: 48 },
-        tabBarStyle: { backgroundColor: palette.surfaceRaised, borderTopColor: palette.outlineVariant, height: 64 + bottom, paddingBottom: bottom, paddingHorizontal: spacing.xs, paddingTop: spacing.xs },
-        tabBarIcon: ({ color, size }) => <MaterialIcons color={color} name={tab?.icon ?? "home"} size={size} />,
+        tabBarActiveTintColor: tab?.central ? palette.onPrimary : palette.primary,
+        tabBarLabelStyle: { fontSize: 11, fontWeight: "800", marginTop: 2 },
+        tabBarItemStyle: { borderRadius: shapes.medium, marginHorizontal: 1, minHeight: 48 },
+        tabBarStyle: { backgroundColor: palette.surfaceRaised, borderTopColor: palette.outlineVariant, height: 76 + bottom, paddingBottom: bottom, paddingHorizontal: spacing.xs, paddingTop: spacing.xs },
+        tabBarIconStyle: tab?.central ? { alignItems: "center", backgroundColor: palette.primary, borderColor: palette.surfaceRaised, borderRadius: 32, borderWidth: 5, height: 64, justifyContent: "center", marginTop: -25, width: 64 } : undefined,
+        tabBarIcon: ({ color, size }) => <MaterialIcons color={color} name={tab?.icon ?? "home"} size={tab?.central ? 29 : size} />,
       };
     }}>
-      <Tabs.Screen name="quran" options={{ title: "القرآن" }} />
-      <Tabs.Screen name="duas" options={{ title: "الأدعية" }} />
-      <Tabs.Screen name="azkar" options={{ title: "الأذكار" }} />
-      <Tabs.Screen name="more" options={{ href: null }} />
       <Tabs.Screen name="index" options={{ title: "الرئيسية" }} />
+      <Tabs.Screen name="quran" options={{ title: "القرآن" }} />
+      <Tabs.Screen name="masbaha" options={{ title: "المسبحة" }} />
+      <Tabs.Screen name="azkar" options={{ title: "الأذكار" }} />
+      <Tabs.Screen name="duas" options={{ title: "الأدعية" }} />
+      <Tabs.Screen name="more" options={{ href: null }} />
     </Tabs>
   );
 }
