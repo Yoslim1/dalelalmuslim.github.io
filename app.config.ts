@@ -47,6 +47,7 @@ const config: ExpoConfig = {
     "expo-asset",
     "expo-system-ui",
     "expo-audio",
+    ["expo-video", { supportsBackgroundPlayback: true, supportsPictureInPicture: false }],
     [
       "expo-splash-screen",
       {
