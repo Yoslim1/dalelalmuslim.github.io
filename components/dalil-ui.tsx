@@ -6,8 +6,8 @@ import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } fro
 import { ScreenContainer } from "@/components/screen-container";
 import { palette } from "@/lib/ui/theme";
 
-export function AppScreen({ children, scroll = false }: PropsWithChildren<{ scroll?: boolean }>) {
-  return <ScreenContainer className={scroll ? "" : ""} containerClassName="">{children}</ScreenContainer>;
+export function AppScreen({ children }: PropsWithChildren) {
+  return <ScreenContainer>{children}</ScreenContainer>;
 }
 
 export function BackHeader({ title, subtitle }: { title: string; subtitle?: string }) {

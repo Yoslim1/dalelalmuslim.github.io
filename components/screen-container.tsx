@@ -1,7 +1,7 @@
-import { View, type ViewProps } from "react-native";
+import { StyleSheet, View, type ViewProps } from "react-native";
 import { SafeAreaView, type Edge } from "react-native-safe-area-context";
 
-import { cn } from "@/lib/utils";
+import { palette } from "@/lib/ui/theme";
 
 export interface ScreenContainerProps extends ViewProps {
   /**
@@ -9,18 +9,6 @@ export interface ScreenContainerProps extends ViewProps {
    * Bottom is typically handled by Tab Bar.
    */
   edges?: Edge[];
-  /**
-   * Tailwind className for the content area.
-   */
-  className?: string;
-  /**
-   * Additional className for the outer container (background layer).
-   */
-  containerClassName?: string;
-  /**
-   * Additional className for the SafeAreaView (content layer).
-   */
-  safeAreaClassName?: string;
 }
 
 /**
@@ -31,8 +19,8 @@ export interface ScreenContainerProps extends ViewProps {
  *
  * Usage:
  * ```tsx
- * <ScreenContainer className="p-4">
- *   <Text className="text-2xl font-bold text-foreground">
+ * <ScreenContainer>
+ *   <Text>
  *     Welcome
  *   </Text>
  * </ScreenContainer>
@@ -41,28 +29,23 @@ export interface ScreenContainerProps extends ViewProps {
 export function ScreenContainer({
   children,
   edges = ["top", "left", "right"],
-  className,
-  containerClassName,
-  safeAreaClassName,
   style,
   ...props
 }: ScreenContainerProps) {
   return (
-    <View
-      className={cn(
-        "flex-1",
-        "bg-background",
-        containerClassName
-      )}
-      {...props}
-    >
+    <View style={styles.root} {...props}>
       <SafeAreaView
         edges={edges}
-        className={cn("flex-1", safeAreaClassName)}
-        style={style}
+        style={[styles.safeArea, style]}
       >
-        <View className={cn("flex-1", className)}>{children}</View>
+        <View style={styles.content}>{children}</View>
       </SafeAreaView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { backgroundColor: palette.background, flex: 1 },
+  safeArea: { flex: 1 },
+  content: { flex: 1 },
+});
