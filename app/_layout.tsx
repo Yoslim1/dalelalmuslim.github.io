@@ -4,8 +4,9 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { AppStateProvider } from "@/lib/state/app-state";
 import { QuranAudioProvider } from "@/lib/audio/player";
+import { ReciterLibraryProvider } from "@/lib/audio/reciter-library";
 export default function RootLayout() {
-  return <AppStateProvider><QuranAudioProvider><AppShell /></QuranAudioProvider></AppStateProvider>;
+  return <AppStateProvider><ReciterLibraryProvider><QuranAudioProvider><AppShell /></QuranAudioProvider></ReciterLibraryProvider></AppStateProvider>;
 }
 
 function AppShell() {
