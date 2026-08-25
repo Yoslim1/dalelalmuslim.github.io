@@ -1,6 +1,8 @@
 import * as Crypto from "expo-crypto";
 import { Directory, File, Paths } from "expo-file-system";
 
+import { hashFileBytes } from "@/lib/audio/file-digest";
+
 type DownloadSpec = {
   reciterId: string;
   chapter: number;
@@ -12,12 +14,8 @@ function filename(chapter: number) {
   return `${String(chapter).padStart(3, "0")}.mp3`;
 }
 
-function toHex(buffer: ArrayBuffer) {
-  return Array.from(new Uint8Array(buffer)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
-async function sha256(file: { arrayBuffer: () => Promise<ArrayBuffer> }) {
-  return toHex(await Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, await file.arrayBuffer()));
+async function sha256(file: { bytes: () => Promise<Uint8Array<ArrayBuffer>> }) {
+  return hashFileBytes(file, (bytes) => Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, bytes));
 }
 
 function audioDirectory(reciterId: string) {

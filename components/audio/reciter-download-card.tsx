@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { AppButton, Surface } from "@/components/dalil-ui";
+import { mapAudioDownloadError } from "@/lib/audio/download-error";
 import { downloadVerifiedChapters } from "@/lib/audio/reciter-downloads";
 import { getReciterCoverageLabel, getReciterDownloadLabel } from "@/lib/audio/reciter-download-state";
 import { useReciterLibrary } from "@/lib/audio/reciter-library";
@@ -27,7 +28,7 @@ export function ReciterDownloadCard({ compact = false }: { compact?: boolean }) 
       setProgress(`تم حفظ ${chapters.length} سورة محليًا.`);
       refreshDownloadedChapters();
     } catch (downloadError) {
-      setProgress(downloadError instanceof Error ? downloadError.message : "تعذر تنزيل السور المتاحة.");
+      setProgress(mapAudioDownloadError(downloadError).message);
     } finally { setBusy(false); }
   };
   return <Surface style={[styles.card, compact && styles.compact]}>

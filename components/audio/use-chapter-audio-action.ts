@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Platform } from "react-native";
 
 import { deleteDownloadedAudio, getDownloadedAudioUri } from "@/lib/audio/downloads";
+import { mapAudioDownloadError } from "@/lib/audio/download-error";
 import { useQuranAudio } from "@/lib/audio/player";
 import { getChapterActionState } from "@/lib/audio/reciter-download-state";
 import { downloadVerifiedChapter } from "@/lib/audio/reciter-downloads";
@@ -52,7 +53,7 @@ export function useChapterAudioAction(chapter: number, chapterName: string) {
       refreshDownloadedChapters();
     } catch (error) {
       setFailed(true);
-      setMessage(error instanceof Error ? error.message : "فشل تنزيل التلاوة أو التحقق منها.");
+      setMessage(mapAudioDownloadError(error).message);
     } finally {
       setDownloading(false);
     }
