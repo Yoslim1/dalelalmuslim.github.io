@@ -15,8 +15,8 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
-  build-debug-apk:
-    name: Build offline Android APK
+  build-release-apk:
+    name: Build standalone Android APK
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -54,14 +54,14 @@ jobs:
       - name: Generate Android project
         run: npx expo prebuild --platform android --no-install
 
-      - name: Assemble debug APK
+      - name: Assemble standalone APK
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleRelease --no-daemon
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dalil-almuslim-offline-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: dalil-almuslim-offline-standalone-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
           retention-days: 14
