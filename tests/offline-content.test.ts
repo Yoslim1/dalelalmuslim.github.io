@@ -4,7 +4,9 @@ vi.mock("@react-native-async-storage/async-storage", () => ({
   default: { getItem: vi.fn(), setItem: vi.fn() },
 }));
 
-import { allahNames, azkarCategories, dailyAyahList, dailyMessages, duaCategories, getDailyIndex, stories, surahCatalog } from "../lib/content";
+import { allahNames, azkarCategories, duaCategories, stories } from "../lib/content";
+import { dailyAyahList, dailyMessages, getDailyIndex } from "../lib/content/daily";
+import { surahCatalog } from "../lib/content/quran";
 import { createDefaultAppState, normalizeAppState } from "../lib/state/app-state";
 
 describe("المحتوى المحلي", () => {

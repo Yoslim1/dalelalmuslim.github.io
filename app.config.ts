@@ -5,8 +5,8 @@ const env = {
   appSlug: "dalil-almuslim-expo",
   logoUrl: "/manus-storage/dalil-almuslim-icon_2675282a.png",
   scheme: "dalilalmuslim",
-  iosBundleId: "space.manus.dalil.almuslim.expo",
-  androidPackage: "space.manus.dalil.almuslim.expo",
+  iosBundleId: "com.yoslim.dalilalmuslim",
+  androidPackage: "com.yoslim.dalilalmuslim",
 };
 
 const config: ExpoConfig = {

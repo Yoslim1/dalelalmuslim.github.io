@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { AppScreen, Metric, ScreenTitle, Surface } from "@/components/dalil-ui";
-import { getDailyAyah, getDailyMessage } from "@/lib/content";
+import { getDailyAyah, getDailyMessage } from "@/lib/content/daily";
 import { useAppState } from "@/lib/state/app-state";
 import { palette } from "@/lib/ui/theme";
 

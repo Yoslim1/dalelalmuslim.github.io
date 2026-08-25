@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { AppScreen, BackHeader, Surface } from "@/components/dalil-ui";
-import { getSurah, surahCatalog } from "@/lib/content";
+import { getSurah, surahCatalog } from "@/lib/content/quran";
 import { useAppState } from "@/lib/state/app-state";
 import { copyText, shareText } from "@/lib/text-actions";
 import { palette } from "@/lib/ui/theme";
