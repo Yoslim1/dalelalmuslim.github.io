@@ -15,10 +15,12 @@ export type QuranBookmark = {
 } | null;
 
 export type AppState = {
-  schemaVersion: 2;
+  schemaVersion: 3;
   settings: {
     theme: "system" | "light" | "dark";
     tasbeehTarget: number;
+    hapticsEnabled: boolean;
+    quranTextSize: number;
   };
   daily: {
     dateKey: string;
@@ -61,8 +63,8 @@ function todayKey(date = new Date()): string {
 
 export function createDefaultAppState(date = new Date()): AppState {
   return {
-    schemaVersion: 2,
-    settings: { theme: "system", tasbeehTarget: 100 },
+    schemaVersion: 3,
+    settings: { theme: "system", tasbeehTarget: 100, hapticsEnabled: true, quranTextSize: 22 },
     daily: { dateKey: todayKey(date), tasbeehCount: 0, completedAzkarIds: [] },
     quranBookmark: null,
     azkarRepeats: {},
@@ -85,7 +87,14 @@ export function normalizeAppState(input: unknown, date = new Date()): AppState {
   return {
     ...fallback,
     ...value,
-    settings: { ...fallback.settings, ...value.settings },
+    settings: {
+      ...fallback.settings,
+      ...value.settings,
+      theme: value.settings?.theme === "dark" || value.settings?.theme === "light" || value.settings?.theme === "system" ? value.settings.theme : fallback.settings.theme,
+      tasbeehTarget: typeof value.settings?.tasbeehTarget === "number" && value.settings.tasbeehTarget >= 25 ? value.settings.tasbeehTarget : fallback.settings.tasbeehTarget,
+      hapticsEnabled: typeof value.settings?.hapticsEnabled === "boolean" ? value.settings.hapticsEnabled : fallback.settings.hapticsEnabled,
+      quranTextSize: typeof value.settings?.quranTextSize === "number" && value.settings.quranTextSize >= 20 && value.settings.quranTextSize <= 30 ? value.settings.quranTextSize : fallback.settings.quranTextSize,
+    },
     daily: dayChanged
       ? fallback.daily
       : { ...fallback.daily, ...value.daily, completedAzkarIds: Array.isArray(value.daily?.completedAzkarIds) ? value.daily.completedAzkarIds : [] },
@@ -98,7 +107,7 @@ export function normalizeAppState(input: unknown, date = new Date()): AppState {
       selectedReciterId: typeof value.audio?.selectedReciterId === "string" ? value.audio.selectedReciterId : null,
       playbackSpeed: typeof value.audio?.playbackSpeed === "number" && value.audio.playbackSpeed >= 0.5 && value.audio.playbackSpeed <= 2 ? value.audio.playbackSpeed : 1,
     },
-    schemaVersion: 2,
+    schemaVersion: 3,
   };
 }
 

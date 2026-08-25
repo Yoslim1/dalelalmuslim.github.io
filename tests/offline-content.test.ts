@@ -37,8 +37,9 @@ describe("المحتوى المحلي", () => {
 describe("الحالة المحلية", () => {
   it("تنشئ حالة افتراضية صالحة دون حساب أو خادم", () => {
     const state = createDefaultAppState(new Date("2026-08-24T12:00:00"));
-    expect(state.schemaVersion).toBe(2);
+    expect(state.schemaVersion).toBe(3);
     expect(state.audio.playbackSpeed).toBe(1);
+    expect(state.settings).toMatchObject({ hapticsEnabled: true, quranTextSize: 22 });
     expect(state.tasks).toHaveLength(3);
     expect(state.daily.tasbeehCount).toBe(0);
   });
@@ -49,7 +50,7 @@ describe("الحالة المحلية", () => {
       daily: { dateKey: "2026-08-23", tasbeehCount: 55, completedAzkarIds: ["morning-1"] },
       favoriteDuaIds: ["a"],
     }, new Date("2026-08-24T12:00:00"));
-    expect(state.settings).toEqual({ theme: "dark", tasbeehTarget: 200 });
+    expect(state.settings).toEqual({ theme: "dark", tasbeehTarget: 200, hapticsEnabled: true, quranTextSize: 22 });
     expect(state.daily.tasbeehCount).toBe(0);
     expect(state.favoriteDuaIds).toEqual(["a"]);
   });
@@ -60,7 +61,7 @@ describe("الحالة المحلية", () => {
       daily: { dateKey: "2026-08-24", tasbeehCount: 3, completedAzkarIds: [] },
       audio: { selectedReciterId: "aaqib-azeez", playbackSpeed: 1.25 },
     }, new Date("2026-08-24T12:00:00"));
-    expect(state.schemaVersion).toBe(2);
+    expect(state.schemaVersion).toBe(3);
     expect(state.audio).toEqual({ selectedReciterId: "aaqib-azeez", playbackSpeed: 1.25 });
   });
 });

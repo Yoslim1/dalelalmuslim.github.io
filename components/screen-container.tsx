@@ -1,7 +1,7 @@
 import { StyleSheet, View, type ViewProps } from "react-native";
 import { SafeAreaView, type Edge } from "react-native-safe-area-context";
 
-import { palette } from "@/lib/ui/theme";
+import { useSakinahTheme } from "@/lib/ui/theme-provider";
 
 export interface ScreenContainerProps extends ViewProps {
   /**
@@ -32,8 +32,9 @@ export function ScreenContainer({
   style,
   ...props
 }: ScreenContainerProps) {
+  const { palette } = useSakinahTheme();
   return (
-    <View style={styles.root} {...props}>
+    <View style={[styles.root, { backgroundColor: palette.background }]} {...props}>
       <SafeAreaView
         edges={edges}
         style={[styles.safeArea, style]}
@@ -45,7 +46,7 @@ export function ScreenContainer({
 }
 
 const styles = StyleSheet.create({
-  root: { backgroundColor: palette.background, flex: 1 },
+  root: { flex: 1 },
   safeArea: { flex: 1 },
   content: { flex: 1 },
 });

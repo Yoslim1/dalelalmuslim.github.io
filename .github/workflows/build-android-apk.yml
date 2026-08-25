@@ -49,7 +49,17 @@ jobs:
           pnpm check
           pnpm lint
           pnpm vitest run tests/offline-content.test.ts --pool=forks --poolOptions.forks.singleFork=true
-          npx expo-doctor
+          set +e
+          npx expo-doctor 2>&1 | tee /tmp/expo-doctor.log
+          doctor_status=${PIPESTATUS[0]}
+          set -e
+          if [ "$doctor_status" -ne 0 ]; then
+            if grep -Fq "Directory check failed with unexpected server response" /tmp/expo-doctor.log && [ "$(grep -Fc '✖' /tmp/expo-doctor.log)" -eq 1 ]; then
+              echo "::warning::Expo Doctor could not reach React Native Directory; all other checks completed."
+            else
+              exit "$doctor_status"
+            fi
+          fi
 
       - name: Generate Android project
         run: npx expo prebuild --platform android --no-install
