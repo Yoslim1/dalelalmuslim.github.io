@@ -15,7 +15,7 @@ export type QuranBookmark = {
 } | null;
 
 export type AppState = {
-  schemaVersion: 1;
+  schemaVersion: 2;
   settings: {
     theme: "system" | "light" | "dark";
     tasbeehTarget: number;
@@ -30,6 +30,10 @@ export type AppState = {
   favoriteDuaIds: string[];
   readStoryIds: string[];
   tasks: Task[];
+  audio: {
+    selectedReciterId: string | null;
+    playbackSpeed: number;
+  };
 };
 
 type AppStateApi = {
@@ -45,6 +49,7 @@ type AppStateApi = {
   toggleTask: (id: string) => void;
   deleteTask: (id: string) => void;
   updateSettings: (patch: Partial<AppState["settings"]>) => void;
+  updateAudioSettings: (patch: Partial<AppState["audio"]>) => void;
   resetAllProgress: () => void;
 };
 
@@ -56,7 +61,7 @@ function todayKey(date = new Date()): string {
 
 export function createDefaultAppState(date = new Date()): AppState {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     settings: { theme: "system", tasbeehTarget: 100 },
     daily: { dateKey: todayKey(date), tasbeehCount: 0, completedAzkarIds: [] },
     quranBookmark: null,
@@ -68,6 +73,7 @@ export function createDefaultAppState(date = new Date()): AppState {
       { id: "evening-azkar", title: "قراءة أذكار المساء", completed: false, createdAt: "seed" },
       { id: "quran-wird", title: "ورد القرآن الكريم", completed: false, createdAt: "seed" },
     ],
+    audio: { selectedReciterId: null, playbackSpeed: 1 },
   };
 }
 
@@ -88,7 +94,11 @@ export function normalizeAppState(input: unknown, date = new Date()): AppState {
     readStoryIds: Array.isArray(value.readStoryIds) ? value.readStoryIds : [],
     tasks: Array.isArray(value.tasks) ? value.tasks.filter((task): task is Task => Boolean(task?.id && task?.title)) : fallback.tasks,
     quranBookmark: value.quranBookmark && typeof value.quranBookmark.surah === "number" ? value.quranBookmark : null,
-    schemaVersion: 1,
+    audio: {
+      selectedReciterId: typeof value.audio?.selectedReciterId === "string" ? value.audio.selectedReciterId : null,
+      playbackSpeed: typeof value.audio?.playbackSpeed === "number" && value.audio.playbackSpeed >= 0.5 && value.audio.playbackSpeed <= 2 ? value.audio.playbackSpeed : 1,
+    },
+    schemaVersion: 2,
   };
 }
 
@@ -138,6 +148,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     toggleTask: (id) => update((current) => ({ ...current, tasks: current.tasks.map((task) => task.id === id ? { ...task, completed: !task.completed } : task) })),
     deleteTask: (id) => update((current) => ({ ...current, tasks: current.tasks.filter((task) => task.id !== id) })),
     updateSettings: (patch) => update((current) => ({ ...current, settings: { ...current.settings, ...patch } })),
+    updateAudioSettings: (patch) => update((current) => ({ ...current, audio: { ...current.audio, ...patch } })),
     resetAllProgress: () => update(() => createDefaultAppState()),
   }), [hydrated, state, update]);
 

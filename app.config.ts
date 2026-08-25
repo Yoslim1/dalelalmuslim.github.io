@@ -21,7 +21,10 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: env.iosBundleId,
-    infoPlist: { ITSAppUsesNonExemptEncryption: false },
+    infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
+      UIBackgroundModes: ["audio"],
+    },
   },
   android: {
     adaptiveIcon: {
@@ -43,6 +46,7 @@ const config: ExpoConfig = {
     "expo-router",
     "expo-asset",
     "expo-system-ui",
+    "expo-audio",
     [
       "expo-splash-screen",
       {

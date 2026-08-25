@@ -37,7 +37,8 @@ describe("المحتوى المحلي", () => {
 describe("الحالة المحلية", () => {
   it("تنشئ حالة افتراضية صالحة دون حساب أو خادم", () => {
     const state = createDefaultAppState(new Date("2026-08-24T12:00:00"));
-    expect(state.schemaVersion).toBe(1);
+    expect(state.schemaVersion).toBe(2);
+    expect(state.audio.playbackSpeed).toBe(1);
     expect(state.tasks).toHaveLength(3);
     expect(state.daily.tasbeehCount).toBe(0);
   });
@@ -51,5 +52,15 @@ describe("الحالة المحلية", () => {
     expect(state.settings).toEqual({ theme: "dark", tasbeehTarget: 200 });
     expect(state.daily.tasbeehCount).toBe(0);
     expect(state.favoriteDuaIds).toEqual(["a"]);
+  });
+
+  it("يرحل بيانات الإصدار السابق ويحتفظ بإعدادات الصوت الصالحة", () => {
+    const state = normalizeAppState({
+      schemaVersion: 1,
+      daily: { dateKey: "2026-08-24", tasbeehCount: 3, completedAzkarIds: [] },
+      audio: { selectedReciterId: "aaqib-azeez", playbackSpeed: 1.25 },
+    }, new Date("2026-08-24T12:00:00"));
+    expect(state.schemaVersion).toBe(2);
+    expect(state.audio).toEqual({ selectedReciterId: "aaqib-azeez", playbackSpeed: 1.25 });
   });
 });

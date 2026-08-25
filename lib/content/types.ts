@@ -30,6 +30,7 @@ export type DuaItem = {
   id: number | string;
   text: string;
   referenceText?: string;
+  sourceLabel?: string;
   categorySlug?: string;
   categoryTitle?: string;
 };

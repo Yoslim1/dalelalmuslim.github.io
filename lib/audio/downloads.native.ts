@@ -1,0 +1,61 @@
+import * as Crypto from "expo-crypto";
+import { Directory, File, Paths } from "expo-file-system";
+
+type DownloadSpec = {
+  reciterId: string;
+  chapter: number;
+  downloadUrl: string;
+  sha256: string;
+};
+
+function filename(chapter: number) {
+  return `${String(chapter).padStart(3, "0")}.mp3`;
+}
+
+function toHex(buffer: ArrayBuffer) {
+  return Array.from(new Uint8Array(buffer)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function sha256(file: { arrayBuffer: () => Promise<ArrayBuffer> }) {
+  return toHex(await Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, await file.arrayBuffer()));
+}
+
+function audioDirectory(reciterId: string) {
+  return new Directory(Paths.document, "dalil-audio", reciterId);
+}
+
+export async function getDownloadedAudioUri(reciterId: string, chapter: number): Promise<string | null> {
+  const file = new File(audioDirectory(reciterId), filename(chapter));
+  return file.exists ? file.uri : null;
+}
+
+export async function downloadChapterAudio(spec: DownloadSpec, onProgress?: (progress: number) => void): Promise<string> {
+  const directory = audioDirectory(spec.reciterId);
+  directory.create({ idempotent: true, intermediates: true });
+  const finalFile = new File(directory, filename(spec.chapter));
+  const temporaryFile = new File(directory, `${filename(spec.chapter)}.partial`);
+  if (temporaryFile.exists) temporaryFile.delete();
+  if (finalFile.exists) finalFile.delete();
+  onProgress?.(0);
+
+  try {
+    await File.downloadFileAsync(spec.downloadUrl, temporaryFile, { idempotent: true });
+    onProgress?.(0.9);
+    const digest = await sha256(temporaryFile);
+    if (digest.toLowerCase() !== spec.sha256.toLowerCase()) {
+      temporaryFile.delete();
+      throw new Error("checksum_mismatch");
+    }
+    temporaryFile.move(finalFile);
+    onProgress?.(1);
+    return finalFile.uri;
+  } catch (error) {
+    if (temporaryFile.exists) temporaryFile.delete();
+    throw error;
+  }
+}
+
+export async function deleteDownloadedAudio(reciterId: string, chapter: number): Promise<void> {
+  const file = new File(audioDirectory(reciterId), filename(chapter));
+  if (file.exists) file.delete();
+}

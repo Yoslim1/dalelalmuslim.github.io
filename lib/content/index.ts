@@ -30,7 +30,7 @@ export const azkarCategories: AzkarCategory[] = rawAzkarCategories.map((category
   period: category.title,
   azkar: category.items ?? [],
 }));
-type RawDua = { id?: string | number; dua?: string; reference?: unknown };
+type RawDua = { id?: string | number; dua?: string; reference?: unknown; source?: string };
 const rawDuaCategories = (DUAS_JSON as unknown as { categories?: Record<string, RawDua[]> }).categories ?? {};
 
 function formatDuaReference(reference: unknown): string | undefined {
@@ -50,6 +50,7 @@ export const duaCategories: DuaCategory[] = Object.entries(rawDuaCategories).map
     id: item.id ?? `${categoryIndex + 1}-${itemIndex + 1}`,
     text: item.dua ?? "",
     referenceText: formatDuaReference(item.reference),
+    sourceLabel: item.source ? `المصدر المسجل: ${item.source}` : undefined,
     categorySlug: `dua-category-${categoryIndex + 1}`,
     categoryTitle: title,
   })),

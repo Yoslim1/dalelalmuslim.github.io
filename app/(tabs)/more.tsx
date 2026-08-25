@@ -6,6 +6,7 @@ import { AppScreen, ListChevron, ScreenTitle, Surface } from "@/components/dalil
 import { palette } from "@/lib/ui/theme";
 
 const entries = [
+  { href: "/audio-library", icon: "headphones" as const, title: "مكتبة التلاوات", subtitle: "قراء وتنزيلاتك الاختيارية" },
   { href: "/masbaha", icon: "touch-app" as const, title: "المسبحة الذكية", subtitle: "عداد وتسبيح يومي" },
   { href: "/tasks", icon: "check-circle-outline" as const, title: "المهام اليومية", subtitle: "وردك وقائمة إنجازك" },
   { href: "/stats", icon: "insights" as const, title: "الإحصائيات", subtitle: "تقدمك المحفوظ محليًا" },
